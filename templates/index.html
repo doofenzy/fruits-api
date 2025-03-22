@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit Search</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        #result { margin-top: 20px; padding: 10px; border: 1px solid #ddd; display: none; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Search for a Fruit</h1>
+    <input type="text" id="fruitInput" placeholder="Enter fruit name">
+    <button onclick="searchFruit()">Search</button>
+
+    <div id="result">
+        <h2 id="fruitName"></h2>
+        <p><strong>Family:</strong> <span id="fruitFamily"></span></p>
+        <p><strong>Order:</strong> <span id="fruitOrder"></span></p>
+        <p><strong>Calories:</strong> <span id="fruitCalories"></span></p>
+        <p><strong>Benefits:</strong></p>
+        <ul id="fruitBenefits"></ul>
+        <p id="errorMessage" class="error"></p>
+    </div>
+
+    <script>
+        function searchFruit() {
+            let fruitName = document.getElementById("fruitInput").value;
+
+            fetch(`/getFruit?fruit=${fruitName}`)
+                .then(response => response.json())
+                .then(data => {
+                    let resultDiv = document.getElementById("result");
+                    let errorMessage = document.getElementById("errorMessage");
+
+                    if (data.error) {
+                        resultDiv.style.display = "block";
+                        errorMessage.textContent = data.error;
+                        document.getElementById("fruitName").textContent = "";
+                        document.getElementById("fruitFamily").textContent = "";
+                        document.getElementById("fruitOrder").textContent = "";
+                        document.getElementById("fruitCalories").textContent = "";
+                        document.getElementById("fruitBenefits").innerHTML = "";
+                    } else {
+                        resultDiv.style.display = "block";
+                        errorMessage.textContent = "";
+                        document.getElementById("fruitName").textContent = data.name;
+                        document.getElementById("fruitFamily").textContent = data.family;
+                        document.getElementById("fruitOrder").textContent = data.order;
+                        document.getElementById("fruitCalories").textContent = data.nutritions.calories;
+
+                        let benefitsList = document.getElementById("fruitBenefits");
+                        benefitsList.innerHTML = "";
+                        data.benefits.forEach(benefit => {
+                            let li = document.createElement("li");
+                            li.textContent = benefit;
+                            benefitsList.appendChild(li);
+                        });
+                    }
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
+    </script>
+</body>
+</html>
